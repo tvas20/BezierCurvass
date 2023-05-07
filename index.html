@@ -12,32 +12,32 @@
     </main>
     
     <!-- Selecionador de curva -->
-    <input type ="button" onclick="mostrarResult()" id="corCurva" style="marging : 5px;background-color:red">
+    <input type ="button" onclick="seletor()" id="corCurva" style="marging : 5px;background-color:red">
     
     <!-- Deletar TODAS curvas-->
-    <input type ="button" onclick="" id="Clear" value="Clear">
+    <input type ="button" id="Clear" value="Clear">
     
     <!-- Adicionar nova curva-->
-    <input type ="button" onclick="" id="Add" value="Add">
+    <input type ="button" id="Add" value="Add">
     
     <!-- Deletar Curva -->
-    <input type ="button" onclick="" id="Del" value="Del">
+    <input type ="button" id="Del" value="Del">
     
     <!-- Curvas -->
-    <input type ="checkbox" id="Curvas" onclick="oi()">
+    <input checked type ="checkbox" id="Curvas">
     <label for="Curvas">&#128171</label>
     
     <!-- Poligonais -->
-    <input type ="checkbox" id="Poligon">
+    <input checked type ="checkbox" id="Poligon">
     <label for="Poligon">&#9889</label>
     
     <!-- Pontos de controle -->
-    <input type ="checkbox" id="Pontos">
+    <input checked type ="checkbox" id="Pontos">
     <label for="Pontos">&#128205</label>
     
     <!-- Grau do Bezier -->
     
-    <input type="range" oninput = "bezC()" id="qtd" min="1" max="100" value="70" step="1">
+    <input type="range" id="qtd" min="1" max="100" value="70" step="1">
     <label for="qtd" id="resultado"></label>
     
     <script src="sketch.js"></script>
