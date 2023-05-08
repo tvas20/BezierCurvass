@@ -8,11 +8,30 @@ var onPoligon = true;
 var onPontos = true;
 var atual = 0;
 var nivel;
+var deleta = false;
+let element = document.getElementById("corCurva");//cor do seletor
+var funfa = false;
 
 //interacao de botoes
 (document.getElementById("Clear")).addEventListener("click", limpar); //CLEAR
 (document.getElementById("Add")).addEventListener("click", addCurva); //ADD
-/*(document.getElementById("Del")).addEventListener("click", deletar); //DEL*/
+(document.getElementById("Del")).addEventListener("click", function(){
+  deleta = true;
+}); //DEL
+(document.getElementById("DelCur")).addEventListener("click", function(){
+  var lista = estruturas.curvas[atual];
+  if(estruturas.quantidade > 0){
+    estruturas.quantidade--;
+    var corAtual = lista.cor;
+    cores.splice(atual, 1);
+    cores.push(corAtual);
+    estruturas.curvas.splice(atual, 1);
+    if(atual != 0){
+       atual--;
+    }
+    muda();
+  }
+}); //DEL
 
 //interacao checkboxes
 document.getElementById("Curvas").addEventListener("change", function(){ 
@@ -57,7 +76,7 @@ function setup() {
 
 function draw() {
   background(55);
-  nivel = document.getElementById("resultado").innerHTML = document.getElementById("qtd").value;
+  muda();
   if(onPontos){
     var i = 0;
     for(i=0;i<estruturas.quantidade;i++){
@@ -90,7 +109,6 @@ class TodasCurvas{
 class curvaBezier{
   constructor(){
     this.points = [];
-    this.cur = [];
     this.cor = null;
   }
 }
@@ -98,26 +116,93 @@ class curvaBezier{
 //Inicia Objeto de todas estruturas
 let estruturas = new TodasCurvas();
 
+function proximo(lista, xi, yi){
+  var i = 0;
+  for(i=0; i < lista.points.length; i++){
+    if(dist(xi,yi,lista.points[i][0],lista.points[i][1]) < 20){
+      return i;
+    }
+  }
+  return false;
+}
+
+function longe(lista, xi, yi){
+  var i = 0;
+  for(i=0; i < lista.points.length; i++){
+    if(dist(xi,yi,lista.points[i][0],lista.points[i][1]) < 20){
+      return false;
+    }
+  }
+  return true;
+}
+
 function mouseClicked(){
   mx = mouseX;
   my = mouseY;
-  if((mx < 400 && my < 400) && estruturas.quantidade > 0){
+  if(estruturas.quantidade > 0){
     var lista = (estruturas.curvas)[atual];
-    (lista.points).push([mx, my]);
+    var distancia = longe(lista, mx, my);
+    if((mx < 400 && my < 400) && deleta){
+      var local = proximo(lista, mx, my);
+      if(local !== false){
+        deletar(local);
+      }
+      deleta = false;
+    }else if((mx < 400 && my < 400) && estruturas.quantidade > 0 && distancia){
+      (lista.points).push([mx, my]);
+    }
   }
 }
 
+function mousePressed(){
+  var lista = estruturas.curvas[atual];
+  if(estruturas.quantidade > 0 && lista.points.length > 0){
+    funfa = proximo(estruturas.curvas[atual],mouseX,mouseY);
+  }
+}
+function mouseDragged(){ 
+    if(funfa !== false){
+      estruturas.curvas[atual].points[funfa][0] = mouseX;
+      estruturas.curvas[atual].points[funfa][1] = mouseY;
+      drawPoints(atual);
+      drawPoligon(atual);
+      drawCurva(atual);
+    } 
+}
+
+function mouseReleased(){
+  funfa = false;
+}
 function limpar(){
+  deleta = false;
+  atual = 0;
   estruturas.quantidade = 0;
   estruturas.curvas = [];
+  muda();
 }
 
 function addCurva(){
+  deleta = false;
   let curvaAtual = new curvaBezier();
   (estruturas.curvas).push(curvaAtual);
   estruturas.quantidade++;
   curvaAtual.cor = cores[estruturas.quantidade-1];
   atual = estruturas.quantidade-1;
+  muda();
+}
+
+function deletar(coord){
+  deleta = false;
+  var lista = estruturas.curvas[atual].points;
+  if(lista.length == 1){
+    (estruturas.curvas).splice(atual,1);
+    estruturas.quantidade--;
+    if(atual != 0){
+      atual--;
+    }
+  }else{
+    lista.splice(coord,1);
+  }  
 }
 
 function drawCurva(i){
@@ -154,14 +239,22 @@ function drawPoints(i){
   }
 }
 
+function muda(){
+  nivel = document.getElementById("resultado").innerHTML = document.getElementById("qtd").value;
+  if(estruturas.quantidade > 0){
+    document.getElementById("corCurva").innerHtml = element.style.backgroundColor= cores[atual];
+  }else{
+    document.getElementById("corCurva").innerHtml = element.style.backgroundColor= 'rgba(0,0,0,0)';
+  }
+}
+
 function seletor(){
-  let element = document.getElementById("corCurva");
   if(atual == estruturas.quantidade-1){
     atual = 0;
   }else{
     atual++;
   }
-  document.getElementById("corCurva").innerHtml = element.style.backgroundColor= cores[atual];
+  muda();
 }
 
 function interpolate(t, p0, p1){
@@ -187,15 +280,3 @@ function deCasteljau(points, nEvaluations){
   }
   return result;
 }
-
-
-
-
-
-
-
-
-
-
-
-
